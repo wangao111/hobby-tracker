@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱好时间追踪器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, button {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .hobby-form {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .hobby-form input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .hobbies-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .hobby-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .hobby-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .hobby-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .hobby-time {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .time-entry {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .time-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .history {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .time-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .hobby-form {
+                flex-direction: column;
+            }
+            
+            .hobby-form input,
+            .hobby-form button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 爱好时间追踪器</h1>
+            <p class="subtitle">记录每天的训练时光，见证成长轨迹</p>
+        </header>
+
+        <main>
+            <section class="section">
+                <h2>📝 添加新爱好</h2>
+                <div class="hobby-form">
+                    <input type="text" id="hobbyInput" placeholder="输入爱好名称（如：弹吉他、跑步、绘画等）">
+                    <button onclick="addHobby()">添加爱好</button>
+                </div>
+                <div id="hobbiesList" class="hobbies-list"></div>
+            </section>
+
+            <section class="section">
+                <h2>⏱️ 记录训练时间</h2>
+                <div class="time-entry">
+                    <div class="time-form">
+                        <div class="form-group">
+                            <label for="hobbySelect">选择爱好：</label>
+                            <select id="hobbySelect">
+                                <option value="">请选择一个爱好</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="timeInput">训练时间（分钟）：</label>
+                            <input type="number" id="timeInput" min="1" placeholder="如：30">
+                        </div>
+                        <button onclick="addTimeEntry()">记录时间</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📊 今日统计</h2>
+                <div id="todayStats" class="stats"></div>
+            </section>
+
+            <section class="section">
+                <h2>🏆 累计统计</h2>
+                <div id="totalStats" class="stats"></div>
+            </section>
+
+            <section class="section">
+                <h2>📖 训练历史</h2>
+                <div id="history" class="history"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let hobbies = JSON.parse(localStorage.getItem('hobbies')) || [];
+        let timeEntries = JSON.parse(localStorage.getItem('timeEntries')) || [];
+
+        function saveData() {
+            localStorage.setItem('hobbies', JSON.stringify(hobbies));
+            localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+        }
+
+        function addHobby() {
+            const hobbyInput = document.getElementById('hobbyInput');
+            const hobbyName = hobbyInput.value.trim();
+            
+            if (hobbyName && !hobbies.includes(hobbyName)) {
+                hobbies.push(hobbyName);
+                hobbyInput.value = '';
+                saveData();
+                updateDisplay();
+            } else if (hobbies.includes(hobbyName)) {
+                alert('这个爱好已经存在了！');
+            } else {
+                alert('请输入爱好名称');
+            }
+        }
+
+        function deleteHobby(hobbyName) {
+            if (confirm(`确定要删除爱好"${hobbyName}"吗？相关的训练记录也会被删除。`)) {
+                hobbies = hobbies.filter(h => h !== hobbyName);
+                timeEntries = timeEntries.filter(entry => entry.hobby !== hobbyName);
+                saveData();
+                updateDisplay();
+            }
+        }
+
+        function addTimeEntry() {
+            const hobbySelect = document.getElementById('hobbySelect');
+            const timeInput = document.getElementById('timeInput');
+            
+            const hobby = hobbySelect.value;
+            const time = parseInt(timeInput.value);
+            
+            if (hobby && time > 0) {
+                const entry = {
+                    hobby: hobby,
+                    time: time,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: new Date().toLocaleString('zh-CN')
+                };
+                
+                timeEntries.push(entry);
+                timeInput.value = '';
+                hobbySelect.value = '';
+                saveData();
+                updateDisplay();
+            } else {
+                alert('请选择爱好并输入有效的训练时间');
+            }
+        }
+
+        function deleteTimeEntry(index) {
+            if (confirm('确定要删除这条训练记录吗？')) {
+                timeEntries.splice(index, 1);
+                saveData();
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            displayHobbies();
+            updateHobbySelect();
+            displayTodayStats();
+            displayTotalStats();
+            displayHistory();
+        }
+
+        function displayHobbies() {
+            const hobbiesList = document.getElementById('hobbiesList');
+            hobbiesList.innerHTML = '';
+            
+            hobbies.forEach(hobby => {
+                const totalTime = timeEntries
+                    .filter(entry => entry.hobby === hobby)
+                    .reduce((sum, entry) => sum + entry.time, 0);
+                
+                const hobbyDiv = document.createElement('div');
+                hobbyDiv.className = 'hobby-item';
+                hobbyDiv.innerHTML = `
+                    <div class="hobby-name">${hobby}</div>
+                    <div class="hobby-time">${totalTime}分钟</div>
+                    <button class="delete-btn" onclick="deleteHobby('${hobby}')">删除</button>
+                `;
+                hobbiesList.appendChild(hobbyDiv);
+            });
+        }
+
+        function updateHobbySelect() {
+            const hobbySelect = document.getElementById('hobbySelect');
+            hobbySelect.innerHTML = '<option value="">请选择一个爱好</option>';
+            
+            hobbies.forEach(hobby => {
+                const option = document.createElement('option');
+                option.value = hobby;
+                option.textContent = hobby;
+                hobbySelect.appendChild(option);
+            });
+        }
+
+        function displayTodayStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayEntries = timeEntries.filter(entry => entry.date === today);
+            const todayStats = document.getElementById('todayStats');
+            
+            const hobbyStats = {};
+            let totalToday = 0;
+            
+            todayEntries.forEach(entry => {
+                hobbyStats[entry.hobby] = (hobbyStats[entry.hobby] || 0) + entry.time;
+                totalToday += entry.time;
+            });
+            
+            todayStats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalToday}</div>
+                    <div class="stat-label">今日总训练时间（分钟）</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Object.keys(hobbyStats).length}</div>
+                    <div class="stat-label">今日训练的爱好数</div>
+                </div>
+            `;
+            
+            Object.entries(hobbyStats).forEach(([hobby, time]) => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <div class="stat-number">${time}</div>
+                    <div class="stat-label">${hobby}（今日）</div>
+                `;
+                todayStats.appendChild(statCard);
+            });
+        }
+
+        function displayTotalStats() {
+            const totalStats = document.getElementById('totalStats');
+            const hobbyStats = {};
+            let totalTime = 0;
+            
+            timeEntries.forEach(entry => {
+                hobbyStats[entry.hobby] = (hobbyStats[entry.hobby] || 0) + entry.time;
+                totalTime += entry.time;
+            });
+            
+            totalStats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalTime}</div>
+                    <div class="stat-label">累计总训练时间（分钟）</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round(totalTime / 60 * 10) / 10}</div>
+                    <div class="stat-label">累计总训练时间（小时）</div>
+                </div>
+            `;
+            
+            Object.entries(hobbyStats)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([hobby, time]) => {
+                    const statCard = document.createElement('div');
+                    statCard.className = 'stat-card';
+                    statCard.innerHTML = `
+                        <div class="stat-number">${time}</div>
+                        <div class="stat-label">${hobby}（累计分钟）</div>
+                    `;
+                    totalStats.appendChild(statCard);
+                });
+        }
+
+        function displayHistory() {
+            const history = document.getElementById('history');
+            history.innerHTML = '';
+            
+            if (timeEntries.length === 0) {
+                history.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">还没有训练记录，开始记录你的第一次训练吧！</p>';
+                return;
+            }
+            
+            const sortedEntries = [...timeEntries].reverse();
+            
+            sortedEntries.forEach((entry, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div>
+                        <strong>${entry.hobby}</strong> - ${entry.time}分钟
+                        <br><small style="color: #666;">${entry.timestamp}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTimeEntry(${timeEntries.length - 1 - index})">删除</button>
+                `;
+                history.appendChild(historyItem);
+            });
+        }
+
+        document.getElementById('hobbyInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addHobby();
+            }
+        });
+
+        document.getElementById('timeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTimeEntry();
+            }
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
